@@ -23,7 +23,7 @@ This is a real-time web chat application built with Node.js, Express, and Socket
 
 1. **Clone the Repository**:
     ```bash
-   git clone https://github.com/Mahadev2074/WebChat.git
+   git clone https://github.com/Chokkakuyaswanth/Web-Chat
    cd WebChat
 
     ```
