@@ -1,58 +1,49 @@
-# Web Chat Application
+# Web-Chat
 
-This is a real-time web chat application built with Node.js, Express, and Socket.io. The application allows users to join specific chat rooms and communicate with each other in real-time.
+Web-Chat is a real-time group chat app with a React frontend and an Express, Socket.IO, and MongoDB backend. Users can create named rooms, join with a shared password, see who is online, and read messages sent before they joined.
 
-## Features
+## Run locally
 
-- **Real-time Communication**: Users can chat with each other in real-time.
-- **Room-based Chat**: Users can create or join specific chat rooms.
-- **Bidirectional Communication**: Messages are sent and received instantly using WebSockets.
+Install Node.js 22.9 or newer and start MongoDB. The default MongoDB URI is `mongodb://127.0.0.1:27017/chat`.
 
-## Tech Stack
+In one terminal, run the backend from the repository root.
 
-- **Backend**: Node.js, Express, Socket.io
-- **Frontend**: HTML, CSS, JavaScript
+```sh
+cd server
+npm ci
+npm start
+```
 
-## Installation
+In a second terminal, run the frontend from the repository root.
 
-### Prerequisites
+```sh
+cd front-end
+npm ci
+npm run dev
+```
 
-- Node.js and npm should be installed on your machine.
+Open `http://localhost:5173`. Create a room in one browser tab, then use a second tab or browser session to join with the same password. The server listens on port 3002 by default.
 
-### Steps
+## Configuration
 
-1. **Clone the Repository**:
-    ```bash
-   git clone https://github.com/Chokkakuyaswanth/Web-Chat
-   cd WebChat
+Copy the relevant `.env.example` files to `.env` if you need to override a default.
 
-    ```
+| File | Variable | Purpose |
+| --- | --- | --- |
+| `server/.env` | `PORT` | Backend HTTP and Socket.IO port |
+| `server/.env` | `MONGODB_URI` | MongoDB connection URI |
+| `server/.env` | `FRONTEND_ORIGIN` | Comma-separated frontend origins for REST and Socket.IO |
+| `server/.env` | `ROOM_SESSION_SECRET` | Optional signing secret. Set a long random value to keep existing room sessions valid across server restarts. |
+| `front-end/.env` | `VITE_BACKEND_URL` | Backend URL for REST and Socket.IO. Set it before building the frontend. |
 
-2. **Install Dependencies**:
-    ```bash
-    npm install
-    ```
+For a hosted frontend, use an HTTPS backend URL and set the backend's allowed origin to the hosted frontend URL.
 
-3. **Run the Server**:
-    ```bash
-    npm start
-    ```
+## Room behavior
 
-4. **Open the Application**:
-    Open your browser and go to `http://localhost:3000`
+- The server hashes room passwords with bcrypt. The frontend keeps a signed one-hour room credential in browser session storage for page reloads and reconnects.
+- A disconnected tab rejoins when its socket reconnects and reloads the saved history. If the credential expires before a reconnect, sign in with the room password again.
+- Messages are stored in MongoDB while the room exists. When the last user disconnects, the server waits 60 seconds before deleting the empty room and its messages. A user rejoining in time cancels the cleanup. Presence and cleanup timers run in the server process.
 
-## Usage
+## Checks
 
-1. **Open the application in your browser**.
-2. **Enter a username and the room you want to join**.
-3. **Start chatting** with other users in the room.
-
-## Project Structure
-
-- `server.js`: Main server file that sets up the Express server and Socket.io.
-- `public/`: Contains the frontend files (HTML, CSS, JavaScript).
-  - `index.html`: Main HTML file.
-  - `style.css`: CSS file for styling.
-  - `index.js`: Client-side JavaScript for handling Socket.io connections and DOM manipulation.
-
-
+From `front-end/`, run `npm run lint` and `npm run build`. Run `npm run preview` to serve the production build at `http://localhost:4173` while the backend is running.
